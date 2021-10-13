@@ -64,12 +64,31 @@ For a Mega:
 * 66,67
 * 68,69
 
+For a Nano:
+* 2,3
+* 4,5
+* 6,7
+* 8,9
+* 10,11
+* 12,13
+* 14,15
+* 16,17
+* 18,19
+* A6, A7, 19
+
 All pairs of pins will be tested:
 * Pull-up on one of each pair at a time is read correctly on both pins
 * Pull-up on one pin and output drive low on the other pin correctly reads as low on both pins
 * Input without pull-up on one pin and output drive high on the other pin correctly reads as high on both pins
+* Analog input read from a digital 0V and 5V
 
 ## Changelog
+
+### V3.0
+
+- Added definition for Nano board
+- Added test for Nano analog inputs driven by digital input 
+
 
 ### V2.0
 

@@ -139,17 +139,62 @@ boolean pinPairTest(int pin1, int pin2, int delay_time)
   return pairTest;
 }
 
+boolean pinAnalogTest(int analog_pin, int digital_pin, int delay_time, int tolerance)
+{
+  boolean analogTest = true; // Assume no faults
+  int analog_value = 0;
+  Serial.print("Analog pin ");
+  Serial.print(analog_pin);
+  Serial.print(" driven by digital pin ");
+  Serial.println(digital_pin);
+  
+  pinMode(digital_pin, OUTPUT);
+  digitalWrite(digital_pin, LOW);
+  analog_value = analogRead(analog_pin);
+  if (analog_value > tolerance)
+  {
+    analogTest = false;
+  }
+  Serial.print("Digital 0V reads ");
+  Serial.println(analog_value);
+  delay(delay_time);
+
+  digitalWrite(digital_pin, HIGH);
+  analog_value = analogRead(analog_pin);
+  if (analog_value < (1023 - tolerance))
+  {
+    analogTest = false;
+  }
+  Serial.print("Digital 5V reads ");
+  Serial.println(analog_value);
+  delay(delay_time);
+
+  pinMode(digital_pin, INPUT);
+  return analogTest;
+}
+
 // the loop function runs over and over again forever
 void loop() {
   int delay_time = 10; //ms
+  int analog_tolerance = 5; // difference from zero / 1023 that is acceptable for analog 0 and 5V
   // Uno pins
-  //int pins[][2] = {{2,3},{4,5},{6,7},{8,9},{10,11},{12,13}, // Uno Digital
-  //                  {14,15},{16,17},{18,19}}; // Uno Analog
+  /*int pins[][2] = {{2,3},{4,5},{6,7},{8,9},{10,11},{12,13}, // Uno Digital
+                    {14,15},{16,17},{18,19}}; // Uno Analog
+  boolean analog_test = false;
+  */
   // Mega pins
-  int pins[][2] = {{2,3},{4,5},{6,7},{8,9},{10,11},{12,13},{14,15},{16,17},{18,19},{20,21},
+  /*int pins[][2] = {{2,3},{4,5},{6,7},{8,9},{10,11},{12,13},{14,15},{16,17},{18,19},{20,21},
                    {22,23},{24,25},{26,27},{28,29},{30,31},{32,33},{34,35},{36,37},{38,39},
                    {40,41},{42,43},{44,45},{46,47},{48,49},{50,51},{52,53}, // Mega Digital
                    {54,55},{56,57},{58,59},{60,61},{62,63},{64,65},{66,67},{68,69}}; // Mega Analog
+  boolean analog_test = false;
+                   */
+  // Nano pins
+  int pins[][2] = {{2,3},{4,5},{6,7},{8,9},{10,11},{12,13}, // Nano Digital
+                  {14,15},{16,17},{18,19}}; // Nano Analog
+  int analog_pins[][2] = {{A0,15},{A1,14},{A2,17},{A3,16},{A4,19},{A5,18},{A6,19},{A7,19}}; // Nano Analog only inputs [0] = analog input [1] = digital drive pin
+  boolean analog_test = true;
+  
   boolean success = true; // Assume no faults
   Serial.println("Start testing Arduino Pins");
   Serial.println("==========================");
@@ -162,6 +207,17 @@ void loop() {
     if (not(pinPairTest(pins[pin_test][0], pins[pin_test][1], delay_time)))
     {
       success = false;
+    }
+  }
+  if (analog_test)
+  {
+    int num_analog_inputs = sizeof(analog_pins)/sizeof(analog_pins[0]);
+    for (int pin_test = 0; pin_test < num_analog_inputs; pin_test++)
+    {
+      if (not(pinAnalogTest(analog_pins[pin_test][0], analog_pins[pin_test][1], delay_time, analog_tolerance)))
+      {
+        success = false;
+      }
     }
   }
   if (success)
